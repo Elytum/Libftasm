@@ -352,7 +352,7 @@ void	ft_test_memcpy(char **strings)
 	}
 	while (c-- > 0)
 		write(1, "\b \b", 3);
-	dprintf(1, "\e[1;32mft_puts is valid\n\e[0m");
+	dprintf(1, "\e[1;32mft_memcpy is valid\n\e[0m");
 }
 
 char	*ft_testoutput(output function, char *str, int out)
@@ -384,23 +384,40 @@ char	*ft_testoutput(output function, char *str, int out)
 	}
 	free(buffer);
 	close(fd);
+	remove("testing_tmp");
 	return (file);
 }
 
-void	ft_test_puts(char **strings)
+void	ft_test_puts(char **strings, output function, char *name)
 {
 	int		c;
 	FILE	*f;
 	char	*new;
 	char	*original;
+	char	**ptr;
 
-	c = dprintf(1, "\e[1;34mTesting ft_puts ...\e[0m\n");
-	new = ft_testoutput(&puts, "LOL", 1);
-	original = ft_testoutput(&puts, "LOL", 1);
-	if (ft_strcmp(new, original))
-		dprintf(1, "Error\n");
-	else
-		dprintf(1, "Valid\n");
+	c = dprintf(1, "\e[1;34mTesting %s ...\e[0m");
+	ptr = strings;
+	while (*ptr)
+	{
+		new = ft_testoutput(&puts, *ptr, 1);
+		original = ft_testoutput(&puts, *ptr, 1);
+		// new = strdup("LOL");
+		// original = strdup("LOL");
+		if (ft_strcmp(new, original))
+		{
+			while (c-- > 0)
+				write(1, "\b \b", 3);
+			dprintf(1, "\e[1;31m%s is invalid with '%s' : %s = %s, %s = %s\n\e[0m", name, *ptr, name, new, name + 3, original);
+			free(new), free(original);
+			return ;
+		}
+		free(new), free(original);
+		ptr++;
+	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32mft_puts is valid\n\e[0m");
 	// file = freopen("testing_tmp", "r+", stdout);
 	// remove("testing_tmp");
 }
@@ -422,7 +439,7 @@ int		main(void)
 	ft_testis(&ft_isprint, &isprint, "ft_isprint");
 	ft_testis(&ft_toupper, &toupper, "ft_toupper");
 	ft_testis(&ft_tolower, &tolower, "ft_tolower");
-	ft_test_puts(strings);
+	ft_test_puts(strings, ft_puts, "ft_puts");
 	dprintf(1, "\e[1;34m      Part 2 : \n\e[0m");
 	ft_test_strlen(strings);
 	ft_test_memset(strings);
