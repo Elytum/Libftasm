@@ -288,6 +288,48 @@ void	ft_test_memset(char **strings)
 	dprintf(1, "\e[1;32mft_memset is valid\n\e[0m");
 }
 
+void	ft_test_memcpy(char **strings)
+{
+	int		len;
+	int		c;
+	char	*tmp;
+	char	**ptr;
+	char	*s1;
+	char	*s2;
+
+	c = dprintf(1, "\e[1;34mTesting ft_memcpy ...\e[0m");
+	ptr = strings;
+	while (*ptr)
+	{
+		len = rand() % (ptr - strings + (ptr - strings == 0));
+		tmp = ft_randomstring(len);
+		s1 = (char *)malloc(sizeof(char) * (ptr - strings));
+		ft_memcpy(s1, *ptr, ptr - strings);
+		s2 = (char *)malloc(sizeof(char) * (ptr - strings));
+		ft_memcpy(s2, *ptr, ptr - strings);
+		ft_memcpy(s1, tmp, len);
+		memcpy(s2, tmp, len + (ERROR && (ptr - strings) > ERROR_DIF));
+		free(tmp);
+		if (ft_memcmp(s1, s2, ptr - strings))
+		{
+			while (c-- > 0)
+				write(1, "\b \b", 3);
+			dprintf(1, "\e[1;31mft_memcpy is invalid with '%s' : ft_memcpy = '", *ptr);
+			write(1, s1, ptr - strings);
+			dprintf(1, "', memcpy = '");
+			write(1, s2, ptr - strings);
+			dprintf(1, "'\n\e[0m");
+			free(s1), free(s2);
+			return ;
+		}
+		free(s1), free(s2);
+		ptr++;
+	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32mft_memcpy is valid\n\e[0m");
+}
+
 int		main(void)
 {
 	char	**strings;
@@ -309,7 +351,7 @@ int		main(void)
 	dprintf(1, "\e[1;34m      Part 2 : \n\e[0m");
 	ft_test_strlen(strings);
 	ft_test_memset(strings);
-	// ft_test_memcpy(strings);
+	ft_test_memcpy(strings);
 	ft_test_strdup(strings);
 	// ft_stringstest(strings);
 	dprintf(1, "\e[1;34m      Part 3 : \n\e[0m");
