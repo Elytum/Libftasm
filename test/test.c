@@ -4,7 +4,7 @@
 #define MIN_VALUE -500000
 #define MAX_VALUE 500000
 #define RANDOM_STRING_TESTS 100
-#define ERROR 0
+#define ERROR 1
 #define	ERROR_DIF 10
 #define READ_LEN 85
 #include <time.h>
@@ -332,7 +332,7 @@ void	ft_test_memcpy(char **strings)
 	dprintf(1, "\e[1;32mft_memcpy is valid\n\e[0m");
 }
 
-char	*ft_testoutput(output function, char *str, int out)
+char	*ft_testoutput(output function, char *str, size_t l, int out)
 {
 	int		fd;
 	int		save_fd;
@@ -347,32 +347,25 @@ char	*ft_testoutput(output function, char *str, int out)
 	fd = open("testing_tmp", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
 	save_fd = dup(1);
 	dup2(fd, out);
-dprintf(fd, str);
-dprintf(fd, "LOLOLOLOLOL");
+	write(fd, str, l);
 	dup2(save_fd, out);
 	close(fd);
-	open("testing_tmp", O_RDONLY);
-	buffer = (char *)ft_memalloc(sizeof(char) * (READ_LEN + 1));
-	file = NULL;
+	fd = open("testing_tmp", O_RDONLY);
 	total = 0;
-	while ((v = read(fd, buffer, READ_LEN)) > 0)
+	file = (char *)ft_memalloc(sizeof(char) * (l + 1));
+	buffer = (char *)ft_memalloc(sizeof(char) * (READ_LEN + 1));
+	while ((v = read(fd, buffer, 1) > 0))
 	{
-		tmp = (char *)malloc(sizeof(char) * (total + v + 1));
-		memcpy(tmp, file, total);
-		memcpy(tmp + total, buffer, v);
-		tmp[total + v] = '\0';
-		free(file);
-		file = tmp;
-		bzero(buffer, READ_LEN);
+		memcpy(file + total, buffer, v);
+		total += v;	
 	}
-	// file = strdup("LOfewgrhjeywtgnrdteu,jh,i64ugh mktriyt,gjyri6gm grutejdnf grjetudgmchfdjteuhdg`:L");
 	free(buffer);
 	close(fd);
 	remove("testing_tmp");
 	return (file);
 }
 
-void	ft_test_puts(char **strings, output function, char *name)
+void	ft_test_puts(char **strings, char *name)
 {
 	int		c;
 	FILE	*f;
@@ -386,27 +379,17 @@ void	ft_test_puts(char **strings, output function, char *name)
 	ptr = strings + 1;
 	while (*ptr)
 	{
-		new = ft_testoutput(&puts, *ptr, 1);
-		original = ft_testoutput(&puts, *ptr, 1);
-		// dprintf(1, "Test :");
-		// n = 0;
-		// while (n++ < ptr - strings)
-		// 	dprintf(1, "%i vs %i\n", *(new + n), *(original + n));
-		// dprintf(1, "\n'");
-		dprintf(1, "Test = %i\n", memcmp(new, original, ptr - strings));
-
-	// new = strdup("LOL");
-	// original = strdup("LOL");
-// if (memcmp(new, original, ptr - strings))
-// {
-// 	while (c-- > 0)
-// 		write(1, "\b \b", 3);
-// 	dprintf(1, "Value = %i in position %i ", memcmp(new, original, ptr - strings), ptr - strings);
-// 	dprintf(1, "\e[1;31m%s is invalid with '%s' : %s = '%s', %s = '%s'\n\e[0m", name, *ptr, name, new, name + 3, original);
-// 	free(new), free(original);
-// 	return ;
-// }
-	// free(new), free(original);
+		new = ft_testoutput(&puts, *ptr, ptr - strings, 1);
+		original = ft_testoutput(&ft_puts, *ptr + (ERROR && ptr - strings > ERROR_DIF), ptr - strings, 1);
+		if (memcmp(new, *ptr, ptr - strings) || memcmp(new, original, ptr - strings))
+		{
+			while (c-- > 0)
+				write(1, "\b \b", 3);
+			dprintf(1, "\e[1;31m%s is invalid with '%s' : %s = '%s', %s = '%s'\n\e[0m", name, *ptr, name, new, name + 3, original);
+			free(new), free(original);
+			return ;
+		}
+		free(new), free(original);
 		ptr++;
 	}
 	while (c-- > 0)
@@ -433,7 +416,7 @@ int		main(void)
 	ft_testis(&ft_isprint, &isprint, "ft_isprint");
 	ft_testis(&ft_toupper, &toupper, "ft_toupper");
 	ft_testis(&ft_tolower, &tolower, "ft_tolower");
-	ft_test_puts(strings, ft_puts, "ft_puts");
+	ft_test_puts(strings, "ft_puts");
 	dprintf(1, "\e[1;34m      Part 2 : \n\e[0m");
 	ft_test_strlen(strings);
 	ft_test_memset(strings);
