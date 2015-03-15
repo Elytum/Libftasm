@@ -1,12 +1,14 @@
 #include "test.h"
 #include <stdio.h>
 #include <string.h>
-#define MIN_VALUE -5000000
-#define MAX_VALUE 5000000
-#define RANDOM_STRING_TESTS 1000
+#define MIN_VALUE -500000
+#define MAX_VALUE 500000
+#define RANDOM_STRING_TESTS 100
 #define ERROR 0
 #define	ERROR_DIF 10
+#define READ_LEN 85
 #include <time.h>
+#include <fcntl.h>
 
 /*
 void	ft_bzero(void *s, size_t n);
@@ -28,6 +30,29 @@ int		ft_strcmp(const char *s1, const char *s2);
 char	*ft_strcpy(char *dst, const char *src);
 char	*ft_strnew(size_t size);
 */
+
+char                    *ft_strjoin(char const *s1, char const *s2)
+{
+    register char       *str;
+    register char       *ptr;
+
+    if (s1 && !s2)
+        return (ft_strdup(s1));
+    else if (!s1 && s2)
+        return (ft_strdup(s2));
+    else if (!s1)
+        return (NULL);
+    if (!(str = (char *)malloc(sizeof(char) * \
+        (ft_strlen(s1) + ft_strlen(s2) + 1))))
+        return (NULL);
+    ptr = str;
+    while (*s1)
+        *ptr++ = *s1++;
+    while (*s2)
+        *ptr++ = *s2++;
+    *ptr = '\0';
+    return (str);
+}
 
 char		*ft_randomstring(size_t len)
 {
@@ -327,7 +352,57 @@ void	ft_test_memcpy(char **strings)
 	}
 	while (c-- > 0)
 		write(1, "\b \b", 3);
-	dprintf(1, "\e[1;32mft_memcpy is valid\n\e[0m");
+	dprintf(1, "\e[1;32mft_puts is valid\n\e[0m");
+}
+
+char	*ft_testoutput(output function, char *str, int out)
+{
+	int		fd;
+	int		save_fd;
+	char	*file;
+	char	*buffer;
+	char	*tmp;
+	size_t	len;
+
+	remove("testing_tmp");
+	fd = open("testing_tmp", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+	save_fd = dup(1);
+	dup2(fd, out);
+	dprintf(fd, str);
+	dup2(save_fd, out);
+	close(fd);
+	open("testing_tmp", O_RDONLY);
+	buffer = (char *)malloc(sizeof(char) * (READ_LEN + 1));
+	buffer[READ_LEN + 1] = '\0';
+	file = NULL;
+	while ((read(fd, buffer, READ_LEN)) > 0)
+	{
+		tmp = ft_strjoin(file, buffer);
+		free(file);
+		file = tmp;
+		ft_strclr(buffer);
+	}
+	free(buffer);
+	close(fd);
+	return (file);
+}
+
+void	ft_test_puts(char **strings)
+{
+	int		c;
+	FILE	*f;
+	char	*new;
+	char	*original;
+
+	c = dprintf(1, "\e[1;34mTesting ft_puts ...\e[0m\n");
+	new = ft_testoutput(&puts, "LOL", 1);
+	original = ft_testoutput(&puts, "LOL", 1);
+	if (ft_strcmp(new, original))
+		dprintf(1, "Error\n");
+	else
+		dprintf(1, "Valid\n");
+	// file = freopen("testing_tmp", "r+", stdout);
+	// remove("testing_tmp");
 }
 
 int		main(void)
@@ -347,15 +422,14 @@ int		main(void)
 	ft_testis(&ft_isprint, &isprint, "ft_isprint");
 	ft_testis(&ft_toupper, &toupper, "ft_toupper");
 	ft_testis(&ft_tolower, &tolower, "ft_tolower");
-	// ft_test_puts(strings);
+	ft_test_puts(strings);
 	dprintf(1, "\e[1;34m      Part 2 : \n\e[0m");
 	ft_test_strlen(strings);
 	ft_test_memset(strings);
 	ft_test_memcpy(strings);
 	ft_test_strdup(strings);
-	// ft_stringstest(strings);
 	dprintf(1, "\e[1;34m      Part 3 : \n\e[0m");
-	dprintf(1, "\e[1;34m  Partie bonus : \n\e[0m");
+	dprintf(1, "\e[1;34m   Partie bonus : \n\e[0m");
 	ft_testis(&ft_isupper, &isupper, "ft_isupper");
 	ft_testis(&ft_islower, &islower, "ft_islower");
 }
