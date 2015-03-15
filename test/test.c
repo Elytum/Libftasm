@@ -1,17 +1,16 @@
 #include "test.h"
 #include <stdio.h>
 #include <string.h>
-#define MIN_VALUE -5000000
-#define MAX_VALUE 5000000
-#define RANDOM_STRING_TESTS 20000
+#define MIN_VALUE -500000
+#define MAX_VALUE 500000
+#define MIN_FD -500
+#define MAX_FD 500
+#define RANDOM_STRING_TESTS 100
 #define ERROR 0
 #define	ERROR_DIF 10
 #define READ_LEN 85
 #include <time.h>
 #include <fcntl.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 /*
 void	ft_bzero(void *s, size_t n);
@@ -335,235 +334,209 @@ void	ft_test_memcpy(char **strings)
 	dprintf(1, "\e[1;32mft_memcpy is valid\n\e[0m");
 }
 
-// char	*ft_testoutputstr(output function, char *str, size_t l, int out)
-// {
-// 	int		fd;
-// 	int		save_fd;
-// 	char	*file;
-// 	char	*buffer;
-// 	char	*tmp;
-// 	size_t	len;
-// 	size_t	v;
-// 	size_t	total;
+char	*ft_testoutputstr(output function, char *str, size_t l, int out)
+{
+	int		fd;
+	int		save_fd;
+	char	*file;
+	char	*buffer;
+	char	*tmp;
+	size_t	len;
+	size_t	v;
+	size_t	total;
 
-// 	remove("testing_tmp");
-// 	fd = open("testing_tmp", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
-// 	save_fd = dup(1);
-// 	dup2(fd, out);
-// 	function(str);
-// 	write(1, '\0', 1);
-// 	dup2(save_fd, out);
-// 	close(fd);
-// 	fd = open("testing_tmp", O_RDONLY);
-// 	total = 0;
-// 	file = (char *)ft_memalloc(sizeof(char) * (l + 1));
-// 	buffer = (char *)ft_memalloc(sizeof(char) * (READ_LEN + 1));
-// 	while ((v = read(fd, buffer, 1) > 0))
-// 	{
-// 		memcpy(file + total, buffer, v);
-// 		total += v;	
-// 	}
-// 	free(buffer);
-// 	close(fd);
-// 	remove("testing_tmp");
-// 	return (file);
-// }
+	remove("testing_tmp");
+	fd = open("testing_tmp", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+	save_fd = dup(1);
+	dup2(fd, out);
+	write(fd, str, l);
+	dup2(save_fd, out);
+	close(fd);
+	fd = open("testing_tmp", O_RDONLY);
+	total = 0;
+	file = (char *)ft_memalloc(sizeof(char) * (l + 1));
+	buffer = (char *)ft_memalloc(sizeof(char) * (READ_LEN + 1));
+	while ((v = read(fd, buffer, 1) > 0))
+	{
+		memcpy(file + total, buffer, v);
+		total += v;	
+	}
+	free(buffer);
+	close(fd);
+	remove("testing_tmp");
+	return (file);
+}
 
+char	*ft_testoutputchar(outputchar function, char c)
+{
+	int		fd;
+	int		save_fd;
+	char	*file;
+	char	*buffer;
+	char	*tmp;
+	size_t	len;
+	size_t	v;
+	size_t	total;
 
+	save_fd = dup(1);
+	remove("testing_tmp");
+	fd = open("testing_tmp", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+	dup2(fd, 1);
+	write(fd, &c, 1);
+	dup2(save_fd, 1);
+	close(fd);
+	fd = open("testing_tmp", O_RDONLY);
+	total = 0;
+	file = (char *)ft_memalloc(sizeof(char) * (1 + 1));
+	buffer = (char *)ft_memalloc(sizeof(char) * (READ_LEN + 1));
+	while ((v = read(fd, buffer, 1) > 0))
+	{
+		memcpy(file + total, buffer, v);
+		total += v;	
+	}
+	free(buffer);
+	close(fd);
+	remove("testing_tmp");
+	return (file);
+}
 
-// void	ft_test_puts(char **strings, char *name)
-// {
-// 	int		c;
-// 	char	*new;
-// 	char	*original;
-// 	char	**ptr;
+char	*ft_testoutputchar_fd(outputchar_fd function, char c, int f)
+{
+	int		fd;
+	int		save_fd;
+	char	*file;
+	char	*buffer;
+	char	*tmp;
+	size_t	len;
+	size_t	v;
+	size_t	total;
 
-// 	size_t n;
+	save_fd = dup(f);
+	remove("testing_tmp");
+	fd = open("testing_tmp", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+	dup2(fd, f);
+	write(fd, &c, 1);
+	dup2(save_fd, f);
+	close(fd);
+	fd = open("testing_tmp", O_RDONLY);
+	total = 0;
+	file = (char *)ft_memalloc(sizeof(char) * (1 + 1));
+	buffer = (char *)ft_memalloc(sizeof(char) * (READ_LEN + 1));
+	while ((v = read(fd, buffer, 1) > 0))
+	{
+		memcpy(file + total, buffer, v);
+		total += v;	
+	}
+	free(buffer);
+	close(fd);
+	remove("testing_tmp");
+	return (file);
+}
 
-// 	c = dprintf(1, "\e[1;34mTesting %s ...\e[0m", name);
-// 	ptr = strings + 1;
-// 	while (*ptr)
-// 	{
-// 		new = ft_testoutputstr(&puts, *ptr, ptr - strings, 1);
-// 		original = ft_testoutputstr(&ft_puts, *ptr + (ERROR && ptr - strings > ERROR_DIF), ptr - strings, 1);
-// 		if (memcmp(new, *ptr, ptr - strings) || memcmp(new, original, ptr - strings))
-// 		{
-// 			while (c-- > 0)
-// 				write(1, "\b \b", 3);
-// 			dprintf(1, "\e[1;31m%s is invalid with '%s' : %s = '%s', %s = '%s'\n\e[0m", name, *ptr, name, new, name + 3, original);
-// 			free(new), free(original);
-// 			return ;
-// 		}
-// 		free(new), free(original);
-// 		ptr++;
-// 	}
-// 	while (c-- > 0)
-// 		write(1, "\b \b", 3);
-// 	dprintf(1, "\e[1;32m%s is valid\n\e[0m", name);
-// }
+void	ft_test_puts(char **strings, char *name)
+{
+	int		c;
+	char	*new;
+	char	*original;
+	char	**ptr;
 
-// char		ft_testoutputchar(outputchar1 function, char c)
-// {
-// 	int		fd;
-// 	int		save_fd;
-// 	char	newc;
-// 	int		lol;
+	size_t n;
 
-// 	remove("testing_tmp");
-// 	fd = open("testing_tmp", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
-// 	save_fd = dup(1);
-// 	dup2(fd, 1);
-// 	function(c);
-// 	dup2(save_fd, 1);
-// 	close(fd);
-// 	fd = open("testing_tmp", O_RDONLY);
-// 	read(fd, &newc, 1);
-// 	close(fd);
-// 	remove("testing_tmp");
-// 	return (newc);
-// }
+	c = dprintf(1, "\e[1;34mTesting %s ...\e[0m", name);
+	ptr = strings + 1;
+	while (*ptr)
+	{
+		new = ft_testoutputstr(&puts, *ptr, ptr - strings, 1);
+		original = ft_testoutputstr(&ft_puts, *ptr + (ERROR && ptr - strings > ERROR_DIF), ptr - strings, 1);
+		if (memcmp(new, *ptr, ptr - strings) || memcmp(new, original, ptr - strings))
+		{
+			while (c-- > 0)
+				write(1, "\b \b", 3);
+			dprintf(1, "\e[1;31m%s is invalid with '%s' : %s = '%s', %s = '%s'\n\e[0m", name, *ptr, name, new, name + 3, original);
+			free(new), free(original);
+			return ;
+		}
+		free(new), free(original);
+		ptr++;
+	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32m%s is valid\n\e[0m", name);
+}
 
-// void	ft_test_putchar(char **strings, outputchar2 f1, outputchar1 f2, char *name)
-// {
-// 	int		c;
-// 	char	new;
-// 	char	original;
-// 	char	**ptr;
+void	ft_test_putchar(char **strings, outputchar f1, outputchar f2, char *name)
+{
+	int		c;
+	char	*new;
+	char	*original;
+	char	**ptr;
 
-// 	c = dprintf(1, "\e[1;34mTesting %s ...\e[0m", name);
-// 	ptr = strings + 1;
-// 	while (*ptr)
-// 	{
-// 		new = ft_testoutputchar(&putchar, **ptr);
-// 		original = ft_testoutputchar(&putchar, **ptr);
-// 		// original = ft_testoutputchar(f2, **ptr + (ERROR && ptr - strings > ERROR_DIF), fd);
-// 		if (new != original)
-// 		{
-// 			while (c-- > 0)
-// 				write(1, "\b \b", 3);
-// 			dprintf(1, "\e[1;31m%s is invalid with '%i' : %s = %i, %s = %i\n\e[0m", name, **ptr, name, new, name + 3, original);
-// 			return ;
-// 		}
-// 		ptr++;
-// 	}
-// 	while (c-- > 0)
-// 		write(1, "\b \b", 3);
-// 	dprintf(1, "\e[1;32mft_puts is valid\n\e[0m");
-// }
+	c = dprintf(1, "\e[1;34mTesting %s ...\e[0m", name);
+	ptr = strings + 1;
+	while (*ptr)
+	{
+		new = ft_testoutputchar(f1, **ptr);
+		original = ft_testoutputchar(f2, **ptr + (ERROR && ptr - strings > ERROR_DIF));
+		if (memcmp(new, original, 1))
+		{
+			while (c-- > 0)
+				write(1, "\b \b", 3);
+			dprintf(1, "\e[1;31m%s is invalid with '%s' : %s = '%s', %s = '%s'\n\e[0m", name, *ptr, name, new, name + 3, original);
+			free(new), free(original);
+			return ;
+		}
+		free(new), free(original);
+		ptr++;
+	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32m%s is valid\n\e[0m", name);
+}
 
-	// (--(p)->_w < 0 ? \
-	// 	(p)->_w >= (p)->_lbfsize ? \
-	// 		(*(p)->_p = (c)), *(p)->_p != '\n' ? \
-	// 			(int)*(p)->_p++ : \
-	// 			__swbuf('\n', p) : \
-	// 		__swbuf((int)(c), p) : \
-	// 	(*(p)->_p = (c), (int)*(p)->_p++))
+void	ft_test_putchar_fd(char **strings, outputchar_fd f1, outputchar_fd f2, char *name)
+{
+	int		c;
+	char	*new;
+	char	*original;
+	char	**ptr;
+	int		fd;
 
-// int	ft_putc(int c, FILE *p)
-// {
-// 	// if ((--(p)->w < 0))
+	c = dprintf(1, "\e[1;34mTesting %s ...\e[0m", name);
+	fd = MIN_FD;
+	while (fd < MAX_FD)
+	{
+		ptr = strings + 1;
+		while (*ptr)
+		{
+			new = ft_testoutputchar_fd(f1, **ptr, fd);
+			original = ft_testoutputchar_fd(f2, **ptr + (ERROR && ptr - strings > ERROR_DIF), fd);
+			if (memcmp(new, original, 1))
+			{
+				while (c-- > 0)
+					write(1, "\b \b", 3);
+				dprintf(1, "\e[1;31m%s is invalid with '%s' : %s = '%s', %s = '%s'\n\e[0m", name, *ptr, name, new, name + 3, original);
+				free(new), free(original);
+				return ;
+			}
+			free(new), free(original);
+			ptr++;
+		}
+		fd++;
+	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32m%s is valid\n\e[0m", name);
+}
 
+void	putchar2(int c)
+{
+	write (1, &c, 1);
+}
 
-
-// 	// return ((--(p)->_w < 0 ? \
-// 	// 	(p)->_w >= (p)->_lbfsize ? \
-// 	// 		(*(p)->_p = (c)), *(p)->_p != '\n' ? \
-// 	// 			(int)*(p)->_p++ : \
-// 	// 			__swbuf('\n', p) : \
-// 	// 		__swbuf((int)(c), p) : \
-// 	// 	(*(p)->_p = (c), (int)*(p)->_p++)));
-
-// if (--(p)->_w < 0)
-// 	if ((p)->_w >= (p)->_lbfsize)
-// 		if ((*(p)->_p = (c)), *(p)->_p != '\n')
-// 			return ((int)*(p)->_p++);
-// 		else
-// 			return (__swbuf2('\n', p));
-// 	else
-// 		return (__swbuf2((int)(c), p));
-// return ((*(p)->_p = (c), (int)*(p)->_p++));
-// }
-
-// void	ft_putchar2(int c)
-// {
-// 	register FILE *so = stdout;
-
-// 	// write(1, &c, 1);
-// 	ft_putc(c, so);
-// }
-
-// void	ft_putchar3(int c)
-// {
-// 	write(1, &c, 1);
-// }
-
-// void	ft_test_puts(void)
-// {
-// 	int		save;
-// 	int		fd;
-// 	char	c;
-// 	int		stream;
-
-// 	// stream = -100;
-// 	// while (stream <= 100)
-// 	// {
-// 		stream = 1;
-// 		dprintf(1, "Testing : stream = %i\n", stream);
-// 		remove("/tmp/test");
-// 		fd = open("/tmp/test", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
-// 		save = dup(stream);
-// 		dup2(fd, stream);
-// 		// puts("LOL");
-// 		ft_putchar2('b');
-// 		// putchar('a');
-// 		// write(1, "\0", 1);
-// 		// ft_puts("LOL");
-// 		// write(1, "LOL\n", 4);
-// 		dup2(save, stream);
-// 		close(fd);
-// 		close(save);
-// 		fd = open("/tmp/test", O_RDONLY);
-// 		if (read(fd, &c, 1))
-// 			write (1, "Here it works\n", 14);
-
-// 		// while (read(fd, &c, 1) > 0)
-// 			// write(1, &c, 1);
-// 		close(fd);
-// 		// stream++;
-// 	// }
-
-/*
-
-	// 	remove("testing_tmp");
-	// 	fd = open("testing_tmp", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
-	// 	save_fd = dup(1);
-	// 	dup2(fd, out);
-// 	function(str);
-// 	write(1, '\0', 1);
-	// 	dup2(save_fd, out);
-// 	close(fd);
-// 	fd = open("testing_tmp", O_RDONLY);
-// 	total = 0;
-// 	file = (char *)ft_memalloc(sizeof(char) * (l + 1));
-
-*/
-	// puts_ret1 = ft_puts("aaa");
-	// puts_ret2 = ft_puts(NULL);
-	// dup2(out, 1);
-	// ret = read(p[0], buf, 10000);
-	// buf[ret] = 0;
-	// close(p[0]);
-	// close(p[1]);
-	// close(out);
-
-	// // open(p[0], O_RDONLY);
-	// while (read(p[0], &buff, 1) == 1)
-	// 	write(1, &buff, 1);
-	// close(p[0]);
-	// mt_assert(puts_ret1 > 0);
-	// mt_assert(puts_ret2 > 0);
-	// mt_assert(strcmp(buf, "aaa\n(null)\n") == 0);
-// }
+void	putchar_fd2(int c, int fd)
+{
+	write (fd, &c, 1);
+}
 
 int		main(void)
 {
@@ -582,7 +555,7 @@ int		main(void)
 	ft_testis(&ft_isprint, &isprint, "ft_isprint");
 	ft_testis(&ft_toupper, &toupper, "ft_toupper");
 	ft_testis(&ft_tolower, &tolower, "ft_tolower");
-	// ft_test_puts();
+	ft_test_puts(strings, "ft_puts");
 	dprintf(1, "\e[1;34m      Part 2 : \n\e[0m");
 	ft_test_strlen(strings);
 	ft_test_memset(strings);
@@ -590,7 +563,8 @@ int		main(void)
 	ft_test_strdup(strings);
 	dprintf(1, "\e[1;34m      Part 3 : \n\e[0m");
 	dprintf(1, "\e[1;34m   Partie bonus : \n\e[0m");
-	// ft_test_putchar(strings, &ft_putchar, &putchar, "ft_putchar");
+	ft_test_putchar(strings, &ft_putchar, &putchar2, "ft_putchar");
+	ft_test_putchar_fd(strings, &ft_putchar_fd, &putchar_fd2, "ft_putchar_fd");
 	ft_testis(&ft_isupper, &isupper, "ft_isupper");
 	ft_testis(&ft_islower, &islower, "ft_islower");
 }
