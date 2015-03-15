@@ -347,7 +347,8 @@ char	*ft_testoutput(output function, char *str, int out)
 	fd = open("testing_tmp", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
 	save_fd = dup(1);
 	dup2(fd, out);
-	dprintf(fd, str);
+dprintf(fd, str);
+dprintf(fd, "LOLOLOLOLOL");
 	dup2(save_fd, out);
 	close(fd);
 	open("testing_tmp", O_RDONLY);
@@ -379,24 +380,33 @@ void	ft_test_puts(char **strings, output function, char *name)
 	char	*original;
 	char	**ptr;
 
+	size_t n;
+
 	c = dprintf(1, "\e[1;34mTesting %s ...\e[0m");
 	ptr = strings + 1;
 	while (*ptr)
 	{
 		new = ft_testoutput(&puts, *ptr, 1);
 		original = ft_testoutput(&puts, *ptr, 1);
-		// new = strdup("LOL");
-		// original = strdup("LOL");
-		if (memcmp(new, original, ptr - strings))
-		{
-			while (c-- > 0)
-				write(1, "\b \b", 3);
-			dprintf(1, "Value = %i in position %i ", memcmp(new, original, ptr - strings), ptr - strings);
-			dprintf(1, "\e[1;31m%s is invalid with '%s' : %s = '%s', %s = '%s'\n\e[0m", name, *ptr, name, new, name + 3, original);
-			free(new), free(original);
-			return ;
-		}
-		free(new), free(original);
+		// dprintf(1, "Test :");
+		// n = 0;
+		// while (n++ < ptr - strings)
+		// 	dprintf(1, "%i vs %i\n", *(new + n), *(original + n));
+		// dprintf(1, "\n'");
+		dprintf(1, "Test = %i\n", memcmp(new, original, ptr - strings));
+
+	// new = strdup("LOL");
+	// original = strdup("LOL");
+// if (memcmp(new, original, ptr - strings))
+// {
+// 	while (c-- > 0)
+// 		write(1, "\b \b", 3);
+// 	dprintf(1, "Value = %i in position %i ", memcmp(new, original, ptr - strings), ptr - strings);
+// 	dprintf(1, "\e[1;31m%s is invalid with '%s' : %s = '%s', %s = '%s'\n\e[0m", name, *ptr, name, new, name + 3, original);
+// 	free(new), free(original);
+// 	return ;
+// }
+	// free(new), free(original);
 		ptr++;
 	}
 	while (c-- > 0)
