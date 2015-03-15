@@ -1,11 +1,11 @@
 #include "test.h"
 #include <stdio.h>
 #include <string.h>
-#define MIN_VALUE -500000
-#define MAX_VALUE 500000
-#define RANDOM_STRING_TESTS 20
-#define ERROR 1
-#define	ERROR_DIF 10
+#define MIN_VALUE -500000 
+#define MAX_VALUE 500000 
+#define RANDOM_STRING_TESTS 50
+#define ERROR 0
+#define	ERROR_DIF 10000
 #include <time.h>
 
 
@@ -16,7 +16,6 @@ int		ft_puts(const char *s);
 
 void	*ft_memset(void *b, int c, size_t len);
 void	*ft_memcpy(void *dst, const void *src, size_t n);
-char	*ft_strdup(const char *s1);
 void	ft_cat(int fd);
 void	*ft_memalloc(size_t size);
 int		ft_memcmp(const void *s1, const void *s2, size_t n);
@@ -47,6 +46,9 @@ char		*ft_randomstring(size_t len)
 
 char		**ft_randomstrings(size_t number)
 {
+	int		c;
+
+	c = dprintf(1, "Generating random strings");
 	char	**string;
 	char	**ptr;
 	size_t	len;
@@ -58,29 +60,10 @@ char		**ft_randomstrings(size_t number)
 	while (len < RANDOM_STRING_TESTS)
 		*ptr++ = ft_randomstring(len++);
 	*ptr = NULL;
+	while (c-- > 0)
+		write(1, "\b \b", 3);
 	return (string);
 }
-
-// void	ft_stringstest(char **strings)
-// {
-// 	char	**ptr;
-
-// 	ptr = strings;
-// 	while (*ptr)
-// 	{
-// 		dprintf(1, "%s\n", *ptr);
-// 		ptr++;
-// 	}
-// }
-
-// void	ft_stringtest(void)
-// {
-// 	int	n;
-
-// 	n = 0;
-// 	while (n++ < RANDOM_STRING_TESTS)
-// 		dprintf(1, "%s\n", ft_randomstring(n));
-// }
 
 void	ft_testis(compare new, compare real, char *name)
 {
@@ -141,7 +124,6 @@ void	ft_test_strlen(char **strings)
 
 void	ft_test_strdup(char **strings)
 {
-	int		len;
 	int		c;
 	char	**ptr;
 	char	*s1;
@@ -156,25 +138,71 @@ void	ft_test_strdup(char **strings)
 		return ;
 	}
 	c = dprintf(1, "\e[1;34mTesting ft_strdup ...\e[0m");
+	ptr = strings;
+	while (*ptr)
+	{
+		s1 = strdup(*ptr);
+		s2 = strdup(*ptr);
+		if (memcmp(s1, s2, ptr - strings))
+		{
+			while (c-- > 0)
+				write(1, "\b \b", 3);
+			dprintf(1, "Len = %i\n", ptr - strings);
+			write(1, "'", 1);
+			write(1, s1, ptr - strings);
+			write(1, "' vs '", 6);
+			write(1, s2, ptr - strings);
+			write(1, "'\n", 2);
+			dprintf(1, "\e[1;31mft_strdup is invalid with '%s' : ft_strdup = %s, strdup = %s\n\e[0m", *ptr, s1, s2);
+			free(s1), free(s2);
+			return ;
+		}
+		free(s1), free(s2);
+		ptr++;
+	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32m\b\b\bft_strdup is valid\n\e[0m");
+}
+
+void	ft_test_bzero(char **strings)
+{
+	int		len;
+	int		c;
+	char	**ptr;
+	char	*s1;
+	char	*s2;
+
+	s1 = ft_strdup("");
+	s2 = strdup("");
+	if (ft_memcmp(s1, s2, 1))
+	{
+		dprintf(1, "\e[1;31mft_bzero invalid with empty string\n\e[0m");
+		free(s1), free(s2);
+		return ;
+	}
+	c = dprintf(1, "\e[1;34mTesting ft_bzero ...\e[0m");
 	len = 1;
 	ptr = strings;
 	while (*ptr)
 	{
 		s1 = ft_strdup(*ptr);
 		s2 = strdup(*ptr + (ERROR && (ptr > strings + ERROR_DIF)));
-		if (ft_memcmp(s1, s2, 1))
+		if (ft_memcmp(s1, s2, len++))
 		{
-			free(s1), free(s2);
 			while (c-- > 0)
 				write(1, "\b \b", 3);
-			dprintf(1, "\e[1;31mft_strdup is invalid with '%s'\n\e[0m", *ptr);
+			dprintf(1, "\e[1;31mft_bzero is invalid with '%s' : ft_bzero = %s, bzero = %s\n\e[0m", *ptr, s1, s2);
+			free(s1), free(s2);
 			return ;
 		}
 		free(s1), free(s2);
 		ptr++;
 	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32m\b\b\bft_bzero is valid\n\e[0m");
 }
-//char	*ft_strdup(const char *s1);
 
 int		main(void)
 {
@@ -193,5 +221,6 @@ int		main(void)
 	strings = ft_randomstrings(RANDOM_STRING_TESTS);
 	ft_test_strlen(strings);
 	ft_test_strdup(strings);
+	// ft_test_bzero(strings);
 	// ft_stringstest(strings);
 }
