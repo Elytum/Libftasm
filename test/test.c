@@ -33,6 +33,16 @@ char	*ft_strcpy(char *dst, const char *src);
 char	*ft_strnew(size_t size);
 */
 
+void	putchar2(int c)
+{
+	write (1, &c, 1);
+}
+
+void	putchar_fd2(int c, int fd)
+{
+	write (fd, &c, 1);
+}
+
 char		*ft_randomstring(size_t len)
 {
 	char	*string;
@@ -381,8 +391,10 @@ char	*ft_testoutputchar(outputchar function, char c)
 	save_fd = dup(1);
 	remove("testing_tmp");
 	fd = open("testing_tmp", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+	// close(fd);
 	dup2(fd, 1);
-	write(fd, &c, 1);
+	// function(c);
+	write(1, &c, 1);
 	dup2(save_fd, 1);
 	close(fd);
 	fd = open("testing_tmp", O_RDONLY);
@@ -411,12 +423,12 @@ char	*ft_testoutputchar_fd(outputchar_fd function, char c, int f)
 	size_t	v;
 	size_t	total;
 
-	save_fd = dup(f);
+	save_fd = dup(1);
 	remove("testing_tmp");
 	fd = open("testing_tmp", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
-	dup2(fd, f);
-	write(fd, &c, 1);
-	dup2(save_fd, f);
+	dup2(fd, 1);
+	putchar_fd2(c, 1);
+	dup2(save_fd, 1);
 	close(fd);
 	fd = open("testing_tmp", O_RDONLY);
 	total = 0;
@@ -502,9 +514,10 @@ void	ft_test_putchar_fd(char **strings, outputchar_fd f1, outputchar_fd f2, char
 	int		fd;
 
 	c = dprintf(1, "\e[1;34mTesting %s ...\e[0m", name);
-	fd = MIN_FD;
-	while (fd < MAX_FD)
-	{
+	// fd = MIN_FD;
+	// while (fd < MAX_FD)
+	// {
+		fd = 1;
 		ptr = strings + 1;
 		while (*ptr)
 		{
@@ -521,21 +534,11 @@ void	ft_test_putchar_fd(char **strings, outputchar_fd f1, outputchar_fd f2, char
 			free(new), free(original);
 			ptr++;
 		}
-		fd++;
-	}
+		// fd++;
+	// }
 	while (c-- > 0)
 		write(1, "\b \b", 3);
 	dprintf(1, "\e[1;32m%s is valid\n\e[0m", name);
-}
-
-void	putchar2(int c)
-{
-	write (1, &c, 1);
-}
-
-void	putchar_fd2(int c, int fd)
-{
-	write (fd, &c, 1);
 }
 
 int		main(void)
