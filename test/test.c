@@ -31,29 +31,6 @@ char	*ft_strcpy(char *dst, const char *src);
 char	*ft_strnew(size_t size);
 */
 
-char                    *ft_strjoin(char const *s1, char const *s2)
-{
-    register char       *str;
-    register char       *ptr;
-
-    if (s1 && !s2)
-        return (ft_strdup(s1));
-    else if (!s1 && s2)
-        return (ft_strdup(s2));
-    else if (!s1)
-        return (NULL);
-    if (!(str = (char *)malloc(sizeof(char) * \
-        (ft_strlen(s1) + ft_strlen(s2) + 1))))
-        return (NULL);
-    ptr = str;
-    while (*s1)
-        *ptr++ = *s1++;
-    while (*s2)
-        *ptr++ = *s2++;
-    *ptr = '\0';
-    return (str);
-}
-
 char		*ft_randomstring(size_t len)
 {
 	char	*string;
@@ -363,6 +340,8 @@ char	*ft_testoutput(output function, char *str, int out)
 	char	*buffer;
 	char	*tmp;
 	size_t	len;
+	size_t	v;
+	size_t	total;
 
 	remove("testing_tmp");
 	fd = open("testing_tmp", O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
@@ -372,16 +351,20 @@ char	*ft_testoutput(output function, char *str, int out)
 	dup2(save_fd, out);
 	close(fd);
 	open("testing_tmp", O_RDONLY);
-	buffer = (char *)malloc(sizeof(char) * (READ_LEN + 1));
-	buffer[READ_LEN + 1] = '\0';
+	buffer = (char *)ft_memalloc(sizeof(char) * (READ_LEN + 1));
 	file = NULL;
-	while ((read(fd, buffer, READ_LEN)) > 0)
+	total = 0;
+	while ((v = read(fd, buffer, READ_LEN)) > 0)
 	{
-		tmp = ft_strjoin(file, buffer);
+		tmp = (char *)malloc(sizeof(char) * (total + v + 1));
+		memcpy(tmp, file, total);
+		memcpy(tmp + total, buffer, v);
+		tmp[total + v] = '\0';
 		free(file);
 		file = tmp;
-		ft_strclr(buffer);
+		bzero(buffer, READ_LEN);
 	}
+	// file = strdup("LOfewgrhjeywtgnrdteu,jh,i64ugh mktriyt,gjyri6gm grutejdnf grjetudgmchfdjteuhdg`:L");
 	free(buffer);
 	close(fd);
 	remove("testing_tmp");
@@ -397,18 +380,19 @@ void	ft_test_puts(char **strings, output function, char *name)
 	char	**ptr;
 
 	c = dprintf(1, "\e[1;34mTesting %s ...\e[0m");
-	ptr = strings;
+	ptr = strings + 1;
 	while (*ptr)
 	{
 		new = ft_testoutput(&puts, *ptr, 1);
 		original = ft_testoutput(&puts, *ptr, 1);
 		// new = strdup("LOL");
 		// original = strdup("LOL");
-		if (ft_strcmp(new, original))
+		if (memcmp(new, original, ptr - strings))
 		{
 			while (c-- > 0)
 				write(1, "\b \b", 3);
-			dprintf(1, "\e[1;31m%s is invalid with '%s' : %s = %s, %s = %s\n\e[0m", name, *ptr, name, new, name + 3, original);
+			dprintf(1, "Value = %i in position %i ", memcmp(new, original, ptr - strings), ptr - strings);
+			dprintf(1, "\e[1;31m%s is invalid with '%s' : %s = '%s', %s = '%s'\n\e[0m", name, *ptr, name, new, name + 3, original);
 			free(new), free(original);
 			return ;
 		}
