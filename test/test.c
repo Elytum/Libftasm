@@ -3,7 +3,7 @@
 #include <string.h>
 #define MIN_VALUE -5000000
 #define MAX_VALUE 5000000
-#define RANDOM_STRING_TESTS 20000
+#define RANDOM_STRING_TESTS 1000
 #define ERROR 0
 #define	ERROR_DIF 10
 #include <time.h>
@@ -185,7 +185,11 @@ void	ft_test_bzero(char **strings)
 		{
 			while (c-- > 0)
 				write(1, "\b \b", 3);
-			dprintf(1, "\e[1;31mft_bzero is invalid with '%s' : ft_bzero = '%s', bzero = '%s'\n\e[0m", *ptr, s1, s2);
+			dprintf(1, "\e[1;31mft_bzero is invalid with '%s' : ft_bzero = '", *ptr);
+			write(1, s1, ptr - strings);
+			dprintf(1, "', bzero = '");
+			write(1, s2, ptr - strings);
+			dprintf(1, "'\n\e[0m");
 			free(s1), free(s2);
 			return ;
 		}
@@ -197,6 +201,52 @@ void	ft_test_bzero(char **strings)
 	dprintf(1, "\e[1;32mft_bzero is valid\n\e[0m");
 }
 
+void	ft_test_strcat(char **strings)
+{
+	int		len;
+	int		c;
+	char	**ptr;
+	char	*tmp;
+	char	*s1;
+	char	*s2;
+
+	c = dprintf(1, "\e[1;34mTesting ft_strcat ...\e[0m");
+	ptr = strings;
+	while (*ptr)
+	{
+		len = (ptr - strings) / 2;
+		if (len > 0)
+		{
+			tmp = ft_randomstring(len);
+			s1 = (char *)malloc(sizeof(char) * (len * 2 + 1));
+			ft_memcpy(s1, *ptr, len);
+			s1[len] = '\0';
+			s2 = (char *)malloc(sizeof(char) * (len * 2 + 1));
+			s2 = ft_memcpy(s2, s1, len * 2 + 1);
+			strcat(s1, tmp);
+			strcat(s2, tmp);
+			free(tmp);	
+			if (ft_memcmp(s1, s2, len * 2 + 1 + ERROR))
+			{
+				while (c-- > 0)
+					write(1, "\b \b", 3);
+				dprintf(1, "\e[1;31mft_strcat is invalid with '%s' : ft_strcat = '", *ptr);
+				write(1, s1, ptr - strings);
+				dprintf(1, "', strcat = '");
+				write(1, s2, ptr - strings);
+				dprintf(1, "'\n\e[0m");
+				free(s1), free(s2);
+				return ;
+			}
+			free(s1), free(s2);
+		}
+		ptr++;
+	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32mft_strcat is valid\n\e[0m");
+}
+
 int		main(void)
 {
 	char	**strings;
@@ -206,7 +256,7 @@ int		main(void)
 	dprintf(1, "\e[1;34m      Part 1 : \n\e[0m");
 	srand(time(NULL));
 	ft_test_bzero(strings);
-	// ft_test_strcat(strings);
+	ft_test_strcat(strings);
 	ft_testis(&ft_isalpha, &isalpha, "ft_isalpha");
 	ft_testis(&ft_isdigit, &isdigit, "ft_isdigit");
 	ft_testis(&ft_isalnum, &isalnum, "ft_isalnum");
@@ -214,6 +264,7 @@ int		main(void)
 	ft_testis(&ft_isprint, &isprint, "ft_isprint");
 	ft_testis(&ft_toupper, &toupper, "ft_toupper");
 	ft_testis(&ft_tolower, &tolower, "ft_tolower");
+	// ft_test_puts(strings);
 	dprintf(1, "\e[1;34m      Part 2 : \n\e[0m");
 	ft_test_strlen(strings);
 	// ft_test_memset(strings);
