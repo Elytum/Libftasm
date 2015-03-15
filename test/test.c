@@ -1,13 +1,12 @@
 #include "test.h"
 #include <stdio.h>
 #include <string.h>
-#define MIN_VALUE -500000 
-#define MAX_VALUE 500000 
-#define RANDOM_STRING_TESTS 50
+#define MIN_VALUE -5000000
+#define MAX_VALUE 5000000
+#define RANDOM_STRING_TESTS 2000
 #define ERROR 0
-#define	ERROR_DIF 10000
+#define	ERROR_DIF 10
 #include <time.h>
-
 
 /*
 void	ft_bzero(void *s, size_t n);
@@ -68,17 +67,21 @@ char		**ft_randomstrings(size_t number)
 void	ft_testis(compare new, compare real, char *name)
 {
 	int	v;
+	int v1;
+	int v2;
 	int c;
 
 	v = MIN_VALUE;
 	c = dprintf(1, "\e[1;34mTesting %s ...\e[0m", name);
 	while (42)
 	{
-		if (new(v) != real(v))
+		v1 = new(v);
+		v2 = real(v + (ERROR && v > ERROR_DIF));
+		if (v1 != v2)
 		{
 			while (c-- > 0)
 				write(1, "\b \b", 3);
-			dprintf(1, "\e[1;31m%s is invalid with %i\n\e[0m", name, v);
+			dprintf(1, "\e[1;31m%s is invalid with %i : %s = %i, %s = %i\n\e[0m", name, v, name, v1, name + 3, v2);
 			return ;
 		}
 		if (v == MAX_VALUE)
@@ -87,7 +90,7 @@ void	ft_testis(compare new, compare real, char *name)
 	}
 	while (c-- > 0)
 		write(1, "\b \b", 3);
-	dprintf(1, "\e[1;32m\b\b\b%s is valid\n\e[0m", name);
+	dprintf(1, "\e[1;32m%s is valid\n\e[0m", name);
 }
 
 void	ft_test_strlen(char **strings)
@@ -119,7 +122,7 @@ void	ft_test_strlen(char **strings)
 	}
 	while (c-- > 0)
 		write(1, "\b \b", 3);
-	dprintf(1, "\e[1;32m\b\b\bft_strlen is valid\n\e[0m");
+	dprintf(1, "\e[1;32mft_strlen is valid\n\e[0m");
 }
 
 void	ft_test_strdup(char **strings)
@@ -142,18 +145,12 @@ void	ft_test_strdup(char **strings)
 	while (*ptr)
 	{
 		s1 = strdup(*ptr);
-		s2 = strdup(*ptr);
-		if (memcmp(s1, s2, ptr - strings))
+		s2 = strdup(*ptr + (ERROR && (ptr > strings + ERROR_DIF)));
+		if (strcmp(s1, s2))
 		{
 			while (c-- > 0)
 				write(1, "\b \b", 3);
-			dprintf(1, "Len = %i\n", ptr - strings);
-			write(1, "'", 1);
-			write(1, s1, ptr - strings);
-			write(1, "' vs '", 6);
-			write(1, s2, ptr - strings);
-			write(1, "'\n", 2);
-			dprintf(1, "\e[1;31mft_strdup is invalid with '%s' : ft_strdup = %s, strdup = %s\n\e[0m", *ptr, s1, s2);
+			dprintf(1, "\e[1;31mft_strdup is invalid with '%s' : ft_strdup = '%s', strdup = '%s'\n\e[0m", *ptr, s1, s2);
 			free(s1), free(s2);
 			return ;
 		}
@@ -162,7 +159,7 @@ void	ft_test_strdup(char **strings)
 	}
 	while (c-- > 0)
 		write(1, "\b \b", 3);
-	dprintf(1, "\e[1;32m\b\b\bft_strdup is valid\n\e[0m");
+	dprintf(1, "\e[1;32mft_strdup is valid\n\e[0m");
 }
 
 void	ft_test_bzero(char **strings)
@@ -173,26 +170,22 @@ void	ft_test_bzero(char **strings)
 	char	*s1;
 	char	*s2;
 
-	s1 = ft_strdup("");
-	s2 = strdup("");
-	if (ft_memcmp(s1, s2, 1))
-	{
-		dprintf(1, "\e[1;31mft_bzero invalid with empty string\n\e[0m");
-		free(s1), free(s2);
-		return ;
-	}
 	c = dprintf(1, "\e[1;34mTesting ft_bzero ...\e[0m");
-	len = 1;
 	ptr = strings;
 	while (*ptr)
 	{
-		s1 = ft_strdup(*ptr);
-		s2 = strdup(*ptr + (ERROR && (ptr > strings + ERROR_DIF)));
-		if (ft_memcmp(s1, s2, len++))
+		s1 = (char *)malloc(sizeof(char) * (ptr - strings));
+		ft_memcpy(s1, *ptr, ptr - strings);
+		s2 = (char *)malloc(sizeof(char) * (ptr - strings));
+		ft_memcpy(s2, *ptr, ptr - strings);
+		len = rand() % (ptr - strings + (ptr - strings == 0));
+		ft_bzero(s1, len);
+		bzero(s2, len + (ERROR && (ptr - strings) > ERROR_DIF));
+		if (ft_memcmp(s1, s2, ptr - strings))
 		{
 			while (c-- > 0)
 				write(1, "\b \b", 3);
-			dprintf(1, "\e[1;31mft_bzero is invalid with '%s' : ft_bzero = %s, bzero = %s\n\e[0m", *ptr, s1, s2);
+			dprintf(1, "\e[1;31mft_bzero is invalid with '%s' : ft_bzero = '%s', bzero = '%s'\n\e[0m", *ptr, s1, s2);
 			free(s1), free(s2);
 			return ;
 		}
@@ -201,26 +194,28 @@ void	ft_test_bzero(char **strings)
 	}
 	while (c-- > 0)
 		write(1, "\b \b", 3);
-	dprintf(1, "\e[1;32m\b\b\bft_bzero is valid\n\e[0m");
+	dprintf(1, "\e[1;32mft_bzero is valid\n\e[0m");
 }
 
 int		main(void)
 {
 	char	**strings;
 
+	dprintf(1, "\e[1;34mPartie normale : \n\e[0m");
 	srand(time(NULL));
-	ft_testis(&ft_isalnum, &isalnum, "ft_isalnum");
+	strings = ft_randomstrings(RANDOM_STRING_TESTS);
+	ft_test_bzero(strings);
 	ft_testis(&ft_isalpha, &isalpha, "ft_isalpha");
-	ft_testis(&ft_isascii, &isascii, "ft_isascii");
 	ft_testis(&ft_isdigit, &isdigit, "ft_isdigit");
+	ft_testis(&ft_isalnum, &isalnum, "ft_isalnum");
+	ft_testis(&ft_isascii, &isascii, "ft_isascii");
 	ft_testis(&ft_islower, &islower, "ft_islower");
-	ft_testis(&ft_isprint, &isprint, "ft_isprint");
-	ft_testis(&ft_isupper, &isupper, "ft_isupper");
 	ft_testis(&ft_toupper, &toupper, "ft_toupper");
 	ft_testis(&ft_tolower, &tolower, "ft_tolower");
-	strings = ft_randomstrings(RANDOM_STRING_TESTS);
 	ft_test_strlen(strings);
 	ft_test_strdup(strings);
-	// ft_test_bzero(strings);
 	// ft_stringstest(strings);
+	dprintf(1, "\e[1;34mPartie bonus : \n\e[0m");
+	ft_testis(&ft_isprint, &isprint, "ft_isprint");
+	ft_testis(&ft_isupper, &isupper, "ft_isupper");
 }
