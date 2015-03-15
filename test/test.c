@@ -3,7 +3,7 @@
 #include <string.h>
 #define MIN_VALUE -5000000
 #define MAX_VALUE 5000000
-#define RANDOM_STRING_TESTS 2000
+#define RANDOM_STRING_TESTS 20000
 #define ERROR 0
 #define	ERROR_DIF 10
 #include <time.h>
@@ -201,21 +201,27 @@ int		main(void)
 {
 	char	**strings;
 
-	dprintf(1, "\e[1;34mPartie normale : \n\e[0m");
-	srand(time(NULL));
 	strings = ft_randomstrings(RANDOM_STRING_TESTS);
+	dprintf(1, "\e[1;34m  Partie normale : \n\e[0m");
+	dprintf(1, "\e[1;34m      Part 1 : \n\e[0m");
+	srand(time(NULL));
 	ft_test_bzero(strings);
+	// ft_test_strcat(strings);
 	ft_testis(&ft_isalpha, &isalpha, "ft_isalpha");
 	ft_testis(&ft_isdigit, &isdigit, "ft_isdigit");
 	ft_testis(&ft_isalnum, &isalnum, "ft_isalnum");
 	ft_testis(&ft_isascii, &isascii, "ft_isascii");
-	ft_testis(&ft_islower, &islower, "ft_islower");
+	ft_testis(&ft_isprint, &isprint, "ft_isprint");
 	ft_testis(&ft_toupper, &toupper, "ft_toupper");
 	ft_testis(&ft_tolower, &tolower, "ft_tolower");
+	dprintf(1, "\e[1;34m      Part 2 : \n\e[0m");
 	ft_test_strlen(strings);
+	// ft_test_memset(strings);
+	// ft_test_memcpy(strings);
 	ft_test_strdup(strings);
 	// ft_stringstest(strings);
-	dprintf(1, "\e[1;34mPartie bonus : \n\e[0m");
-	ft_testis(&ft_isprint, &isprint, "ft_isprint");
+	dprintf(1, "\e[1;34m      Part 3 : \n\e[0m");
+	dprintf(1, "\e[1;34m  Partie bonus : \n\e[0m");
 	ft_testis(&ft_isupper, &isupper, "ft_isupper");
+	ft_testis(&ft_islower, &islower, "ft_islower");
 }
