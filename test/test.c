@@ -39,6 +39,12 @@ void	cat2(int fd)
 		write (1, buffer, l);
 }
 
+void	strclr2(char *s)
+{
+	if (s)
+		bzero(s, strlen(s) + 1);
+}
+
 void				*memalloc2(size_t size)
 {
 	void			*memory;
@@ -786,6 +792,47 @@ void	ft_test_strcmp(char **strings)
 	dprintf(1, "\e[1;32mft_memcmp is valid\n\e[0m");
 }
 
+void	ft_test_strclr(char **strings)
+{
+	int		len;
+	int		c;
+	char	**ptr;
+	char	*s1;
+	char	*s2;
+
+	c = dprintf(1, "\e[1;34mTesting ft_strclr ...\e[0m");
+	ptr = strings;
+	while (*ptr)
+	{
+		s1 = (char *)malloc(sizeof(char) * (ptr - strings));
+		ft_memcpy(s1, *ptr, ptr - strings);
+		s2 = (char *)malloc(sizeof(char) * (ptr - strings));
+		ft_memcpy(s2, *ptr, ptr - strings);
+		len = rand() % (ptr - strings + (ptr - strings == 0));
+		ft_strclr(s1);
+		strclr2(s2);
+		if (s2 && ERROR && (ptr - strings) > ERROR_DIF)
+			*s2++;
+		if (ft_memcmp(s1, s2, ptr - strings))
+		{
+			while (c-- > 0)
+				write(1, "\b \b", 3);
+			dprintf(1, "\e[1;31mft_strclr is invalid with '%s' : ft_strclr = '", *ptr);
+			write(1, s1, ptr - strings);
+			dprintf(1, "', strclr = '");
+			write(1, s2, ptr - strings);
+			dprintf(1, "'\n\e[0m");
+			free(s1), free(s2);
+			return ;
+		}
+		free(s1), free(s2);
+		ptr++;
+	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32mft_strclr is valid\n\e[0m");
+}
+
 int		main(void)
 {
 	char	**strings;
@@ -818,7 +865,7 @@ int		main(void)
 	ft_test_memalloc();
 	ft_test_memcmp(strings);
 	ft_test_strchr(strings);
-	// ft_test_strclr(strings);
+	ft_test_strclr(strings);
 	ft_test_strcmp(strings);
 	ft_test_strcpy(strings);
 	ft_test_strnew();
