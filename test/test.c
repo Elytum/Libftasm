@@ -9,7 +9,7 @@
 #define READ_LEN 85
 #include <time.h>
 #include <fcntl.h>
-
+#define PATH "/tmp/test"
 /*
 void	ft_bzero(void *s, size_t n);
 char	*ft_strcat(char *s1, const char *s2);
@@ -414,7 +414,7 @@ void	ft_test_puts(char **strings, char *name)
 	// remove("testing_tmp");
 }
 
-char		*ft_getfilecontent(char *path)
+char		*ft_getfilecontent(void)
 {
 	int		fd;
 	char	*tmp;
@@ -425,7 +425,7 @@ char		*ft_getfilecontent(char *path)
 	size_t	max;
 
 	max = 1000;
-	if ((fd = open (path, O_RDONLY)) == -1 ||
+	if ((fd = open (PATH, O_RDONLY)) == -1 ||
 		!(str = (char *)malloc(sizeof(char) * (max + 1))))
 		return (strdup(""));
 	bzero(str, max + 1);
@@ -447,10 +447,11 @@ char		*ft_getfilecontent(char *path)
 		memcpy(str + total, buffer, v);
 		total += v;
 	}
+	remove(PATH);
 	return (str);
 }
 
-void	ft_testfunction(char *path, int out)
+void	ft_testfunction(int out, char multichar, int ac, void *function, char *string)
 {
 	int		fd;
 	int		save_fd;
@@ -461,27 +462,25 @@ void	ft_testfunction(char *path, int out)
 	size_t	v;
 	size_t	total;
 
-	remove(path);
-	fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+	remove(PATH);
+	fd = open(PATH, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
 	save_fd = dup(1);
 	dup2(fd, out);
-	write(1, "LOLILOL", 7);
+	if (ac == 1)
+		if (multichar)
+			((outputstr)function)(string);
+		else
+			((outputchar)function)(*string);
+	else
+	{
+		if (multichar)
+			((outputstr_fd)function)(string, out);
+		else
+			((outputchar_fd)function)(*string, out);
+	}
 	close(out);
 	dup2(save_fd, out);
 	close(fd);
-	// fd = open(path, O_RDONLY);
-	// total = 0;
-	// file = (char *)ft_memalloc(sizeof(char) * (l + 1));
-	// buffer = (char *)ft_memalloc(sizeof(char) * (READ_LEN + 1));
-	// while ((v = read(fd, buffer, 1) > 0))
-	// {
-	// 	memcpy(file + total, buffer, v);
-	// 	total += v;	
-	// }
-	// free(buffer);
-	// close(fd);
-	// remove(path);
-	// return (file);
 }
 
 int		main(void)
@@ -489,8 +488,8 @@ int		main(void)
 	char	**strings;
 	char	*var;
 
-	ft_testfunction("/tmp/test", 1);
-	var = ft_getfilecontent("/tmp/test");
+	ft_testfunction(42, 1, 1, ft_putstr, "LOLILOL");
+	var = ft_getfilecontent();
 	write (1, var, ft_strlen(var));
 	free(var);
 	return (0);
