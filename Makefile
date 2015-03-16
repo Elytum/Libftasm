@@ -29,6 +29,7 @@ SRCS = ft_isalpha.s \
 	ft_memalloc.s	\
 	ft_strchr.s		\
 	ft_strclr.s		\
+	ft_strnew.s		\
 	ft_cat.s
 
 

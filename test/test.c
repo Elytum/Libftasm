@@ -38,19 +38,6 @@ void	cat2(int fd)
 	while ((l = read(fd, buffer, READ_LEN)))
 		write (1, buffer, l);
 }
-/*
-	cmp		rdi,	0
-	je		error
-	push	rdi
-	call	_malloc
-	pop		rdi
-	cmp		rax,	0
-	je		error
-	mov		rsi,	rdi
-	mov		rdi,	rax
-	call	_ft_bzero
-	ret
-*/
 
 void				*memalloc2(size_t size)
 {
@@ -70,6 +57,11 @@ void				*memalloc2(size_t size)
 			*explorer++ = 0;
 	}
 	return (memory);
+}
+
+char	*strnew2(size_t size)
+{
+	return (ft_memalloc(size + 1));
 }
 
 char		*ft_randomstring(size_t len)
@@ -642,6 +634,49 @@ void	ft_test_memalloc(void)
 	dprintf(1, "\e[1;32mft_memalloc is valid\n\e[0m");
 }
 
+void	ft_test_strnew(void)
+{
+	int		len;
+	int		c;
+	int		n;
+	char	*s1;
+	char	*s2;
+
+	n = -5;
+	c = dprintf(1, "\e[1;34mTesting ft_strnew ...\e[0m");
+	while (n <= RANDOM_STRING_TESTS)
+	{
+		len = rand() % (n + !n);
+		s1 = ft_strnew(len);
+		s2 = ft_strnew(len);
+		if (len && s1 && ERROR && n > ERROR_DIF)
+			*s1 = 'l';
+		if (s1 && s2 && memcmp(s1, s2, len + 1))
+		{
+			while (c-- > 0)
+				write(1, "\b \b", 3);
+			dprintf(1, "\e[1;31mft_strnew is invalid with len %i : ft_strnew = :");
+			if (s1 && 0)
+				write(1, s1, ft_strlen(s1));
+			else
+				write(1, "(null)", 6);
+			dprintf(1, "', strnew = '");
+			if (s2 && 0)
+				write(1, s2, ft_strlen(s2));
+			else
+				write(1, "(null)", 6);
+			dprintf(1, "'\n\e[0m");
+			// free(s1), free(s2);
+			return ;
+		}
+		free(s1), free(s2);
+		n++;
+	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32mft_strnew is valid\n\e[0m");
+}
+
 void	ft_test_memcmp(char **strings)
 {
 	char **ptr;
@@ -714,6 +749,43 @@ void	ft_test_strchr(char **strings)
 	dprintf(1, "\e[1;32mft_strchr is valid\n\e[0m");
 }
 
+void	ft_test_strcmp(char **strings)
+{
+	char **ptr;
+	char *tmp;
+	int len;
+	int c;
+	int v1;
+	int v2;
+
+	c = dprintf(1, "\e[1;34mTesting ft_strcmp ...\e[0m");
+	ptr = strings + 4;
+	while (*ptr)
+	{
+		tmp = strdup(*ptr);
+		if (ft_strlen(tmp) > 2)
+		{	
+			len = rand() % ft_strlen(tmp);
+			tmp[rand() % ft_strlen(tmp)] = rand();
+			v1 = ft_strcmp(*ptr, tmp);
+			v2 = strcmp(*ptr, tmp) + (ERROR && ptr - strings > ERROR_DIF);
+			if (v1 != v2)
+			{
+				while (c-- > 0)
+					write(1, "\b \b", 3);
+				dprintf(1, "\e[1;31mft_memcmp is invalid with '%s' and '%s' : ft_memcmp = %i, memcmp = %i\n\e[0m", *ptr, tmp, v1, v2);
+				free(tmp);
+				return ;
+			}
+		}
+		free(tmp);
+		ptr++;
+	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32mft_memcmp is valid\n\e[0m");
+}
+
 int		main(void)
 {
 	char	**strings;
@@ -747,9 +819,9 @@ int		main(void)
 	ft_test_memcmp(strings);
 	ft_test_strchr(strings);
 	// ft_test_strclr(strings);
-	// ft_test_strcmp(strings);
+	ft_test_strcmp(strings);
 	ft_test_strcpy(strings);
-	// ft_test_strnew(strings);
+	ft_test_strnew();
 	ft_test_puts(strings, "ft_putchar");
 	ft_test_puts(strings, "ft_putchar_fd");
 	ft_test_puts(strings, "ft_putstr");
