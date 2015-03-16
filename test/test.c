@@ -423,24 +423,24 @@ void	ft_test_puts(char **strings, char *name)
 	{
 		if (!(strcmp("ft_puts", name)))
 			ft_testfunction(1, 1, 1, ft_puts, *ptr);
-		if (!(strcmp("ft_putchar", name)))
+		else if (!(strcmp("ft_putchar", name)))
 			ft_testfunction(1, 1, 1, ft_putchar, *ptr);
-		if (!(strcmp("ft_putchar_fd", name)))
+		else if (!(strcmp("ft_putchar_fd", name)))
 			ft_testfunction(rand() % MAX_FD, 1, 1, ft_putchar_fd, *ptr);
-		if (!(strcmp("ft_putstr", name)))
+		else if (!(strcmp("ft_putstr", name)))
 			ft_testfunction(1, 1, 1, ft_putstr, *ptr);
-		if (!(strcmp("ft_putstr_fd", name)))
+		else if (!(strcmp("ft_putstr_fd", name)))
 			ft_testfunction(rand() % MAX_FD, 1, 1, ft_putstr_fd, *ptr);
 		new = ft_getfilecontent();
 		if (!(strcmp("ft_puts", name)))
 			ft_testfunction(1, 1, 1, puts2, *ptr);
-		if (!(strcmp("ft_putchar", name)))
+		else if (!(strcmp("ft_putchar", name)))
 			ft_testfunction(1, 1, 1, putchar2, *ptr);
-		if (!(strcmp("ft_putchar_fd", name)))
+		else if (!(strcmp("ft_putchar_fd", name)))
 			ft_testfunction(rand() % MAX_FD, 1, 1, putchar_fd2, *ptr);
-		if (!(strcmp("ft_putstr", name)))
+		else if (!(strcmp("ft_putstr", name)))
 			ft_testfunction(1, 1, 1, putstr2, *ptr);
-		if (!(strcmp("ft_putstr_fd", name)))
+		else if (!(strcmp("ft_putstr_fd", name)))
 			ft_testfunction(rand() % MAX_FD, 1, 1, putstr_fd2, *ptr);
 		original = ft_getfilecontent();
 		if (ERROR)
@@ -458,6 +458,64 @@ void	ft_test_puts(char **strings, char *name)
 	while (c-- > 0)
 		write(1, "\b \b", 3);
 	dprintf(1, "\e[1;32m%s is valid\n\e[0m", name);
+}
+
+int			ft_test_cat_tool(int f, char **new, char **original)
+{
+	int		fd;
+	int		save_fd;
+	char	*file;
+	char	*buffer;
+	char	*tmp;
+	size_t	len;
+	size_t	v;
+	size_t	total;
+
+	remove(PATH);
+	fd = open(PATH, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+	save_fd = dup(1);
+	dup2(fd, 1);
+	ft_cat(f);
+	dup2(save_fd, 1);
+	close(fd);
+	*new = ft_getfilecontent();
+	remove(PATH);
+
+	fd = open(PATH, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+	save_fd = dup(1);
+	dup2(fd, 1);
+	ft_cat(f);
+	dup2(save_fd, 1);
+	close(fd);
+	*original = ft_getfilecontent();
+	remove(PATH);
+	return (strcmp(*new, *original));
+}
+
+void	ft_test_cat(void)
+{
+	int		c;
+	char	*new;
+	char	*original;
+
+	c = dprintf(1, "\e[1;34mTesting ft_cat ...\e[0m");
+	// ft_testfunction(1, 1, 1, ft_cat, "lolilol");
+	// new = ft_getfilecontent();
+// ft_test_cat_tool(0, &new, &original);
+		ft_test_cat_tool(open("LOLILOL", O_RDONLY), &new, &original);
+	// ft_testfunction(1, 1, 1, ft_cat, "lolilol");
+	// original = ft_getfilecontent();
+	dprintf(1, "New = '%s', original = '%s'\n", new, new);
+// if (strcmp(original, new))
+// {
+// 	while (c-- > 0)
+// 		write(1, "\b \b", 3);
+// 	dprintf(1, "\e[1;31mft_cat is invalid with file 'LOLILOL' : ft_cat = '%s', cat = '%s'\n\e[0m", new, original);
+// 	return ;
+// }
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32mft_cat is valid\n\e[0m");
 }
 
 int		main(void)
@@ -484,6 +542,7 @@ int		main(void)
 	ft_test_memcpy(strings);
 	ft_test_strdup(strings);
 	dprintf(1, "\e[1;34m      Part 3 : \n\e[0m");
+	ft_test_cat();
 	dprintf(1, "\e[1;34m   Partie bonus : \n\e[0m");
 	ft_testis(&ft_isupper, &isupper, "ft_isupper");
 	ft_testis(&ft_islower, &islower, "ft_islower");
