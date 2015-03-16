@@ -43,7 +43,8 @@ char	*memalloc2(size_t len)
 {
 	char *str;
 
-	str = (char *)malloc(sizeof(len));
+	if (!(str = (char *)malloc(sizeof(len))))
+		return (NULL);
 	bzero(str, len);
 	return (str);
 }
@@ -585,7 +586,7 @@ void	ft_test_memalloc(void)
 {
 	int		len;
 	int		c;
-	size_t	n;
+	int		n;
 	char	*s1;
 	char	*s2;
 
@@ -593,22 +594,25 @@ void	ft_test_memalloc(void)
 	c = dprintf(1, "\e[1;34mTesting ft_memalloc ...\e[0m");
 	while (n <= RANDOM_STRING_TESTS)
 	{
-		len = rand() % n;
-		s1 = ft_memalloc(len);
-		s2 = memalloc2(len);
-		if (ERROR && n > ERROR_DIF)
-			*(s1 + 1) = 'l';
-		if (memcmp(s1, s2, len))
-		{
-			while (c-- > 0)
-				write(1, "\b \b", 3);
-			dprintf(1, "\e[1;31mft_memalloc is invalid with len %i : ft_memalloc = '", len);
-			write(1, s1, len);
-			dprintf(1, "', memalloc = '");
-			write(1, s2, len);
-			dprintf(1, "'\n\e[0m");
-			return ;
-		}
+		// len = rand() % (n + !n);
+		s1 = ft_memalloc(5);
+		s2 = memalloc2(5);
+		// if (ERROR && s1 && n > ERROR_DIF)
+		// 	*s1 = 'l';
+		// if (s1 && s2 && memcmp(s1, s2, len))
+		// {
+		// 	while (c-- > 0)
+		// 		write(1, "\b \b", 3);
+		// 	dprintf(1, "\e[1;31mft_memalloc is invalid with len %i : ft_memalloc = '", len);
+		// 	write(1, s1, len);
+		// 	dprintf(1, "', memalloc = '");
+		// 	write(1, s2, len);
+		// 	dprintf(1, "'\n\e[0m");
+		// 	return ;
+		// }
+		// free(s1);
+		// free(s2);
+
 		n++;
 	}
 	while (c-- > 0)
@@ -653,6 +657,41 @@ void	ft_test_memcmp(char **strings)
 	dprintf(1, "\e[1;32mft_memcmp is valid\n\e[0m");
 }
 
+void	ft_test_strchr(char **strings)
+{
+	char **ptr;
+	int c;
+	char *v1;
+	char *v2;
+	int character;
+	int loop;
+
+	c = dprintf(1, "\e[1;34mTesting ft_strchr ...\e[0m");
+	ptr = strings + 4;
+	while (*ptr)
+	{
+		loop = 0;
+		while (loop <= 10)
+		{
+			character = rand();
+			v1 = ft_strchr(*ptr, character);
+			v2 = strchr(*ptr, character) + (ERROR && ptr - strings > ERROR_DIF);
+			if (v1 != v2)
+			{
+				while (c-- > 0)
+					write(1, "\b \b", 3);
+				dprintf(1, "\e[1;31mft_strchr is invalid with '%s' : ft_strchr = %i, strchr = %i\n\e[0m", *ptr, v1, v2);
+				return ;
+			}
+			loop++;
+		}
+		ptr++;
+	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32mft_strchr is valid\n\e[0m");
+}
+
 int		main(void)
 {
 	char	**strings;
@@ -684,7 +723,7 @@ int		main(void)
 	ft_testis(&ft_islower, &islower, "ft_islower");
 	ft_test_memalloc();
 	ft_test_memcmp(strings);
-	// ft_test_strchr(strings);
+	ft_test_strchr(strings);
 	// ft_test_strclr(strings);
 	// ft_test_strcmp(strings);
 	ft_test_strcpy(strings);

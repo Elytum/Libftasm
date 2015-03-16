@@ -10,7 +10,7 @@
 #define RANDOM_STRING_TESTS 1000
 #define RANDOM_PUT_TESTS 10
 #define ERROR 0
-#define	ERROR_DIF 5
+#define	ERROR_DIF 1
 #define READ_LEN 85
 #define MAX_FD 100
 #define PATH "/tmp/test"
