@@ -40,6 +40,17 @@ int		puts2(const char *str)
 		return (write(1, str, ft_strlen(str)));
 }
 
+void	cat2(int fd)
+{
+	char buffer[READ_LEN];
+	size_t l;
+
+	if (fd < 0)
+		return ;
+	while ((l = read(fd, buffer, READ_LEN)))
+		write (1, buffer, l);
+}
+
 char		*ft_randomstring(size_t len)
 {
 	char	*string;
@@ -460,7 +471,7 @@ void	ft_test_puts(char **strings, char *name)
 	dprintf(1, "\e[1;32m%s is valid\n\e[0m", name);
 }
 
-int			ft_test_cat_tool(int f, char **new, char **original)
+int			ft_test_cat_tool(char **new, char **original, char *path)
 {
 	int		fd;
 	int		save_fd;
@@ -470,12 +481,15 @@ int			ft_test_cat_tool(int f, char **new, char **original)
 	size_t	len;
 	size_t	v;
 	size_t	total;
+	int		f;
 
 	remove(PATH);
 	fd = open(PATH, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
 	save_fd = dup(1);
 	dup2(fd, 1);
+	f = open(path, O_RDONLY);
 	ft_cat(f);
+	close(f);
 	dup2(save_fd, 1);
 	close(fd);
 	*new = ft_getfilecontent();
@@ -484,7 +498,12 @@ int			ft_test_cat_tool(int f, char **new, char **original)
 	fd = open(PATH, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
 	save_fd = dup(1);
 	dup2(fd, 1);
-	ft_cat(f);
+	if (!ERROR)
+		f = open(path, O_RDONLY);
+	else
+		f = ERROR_DIF;
+	cat2(f);
+	close(f);
 	dup2(save_fd, 1);
 	close(fd);
 	*original = ft_getfilecontent();
@@ -492,27 +511,31 @@ int			ft_test_cat_tool(int f, char **new, char **original)
 	return (strcmp(*new, *original));
 }
 
-void	ft_test_cat(void)
+int		ft_test_cat2(int c, char *path)
 {
-	int		c;
 	char	*new;
 	char	*original;
 
+	ft_test_cat_tool(&new, &original, path);
+	if (strcmp(original, new))
+	{
+		while (c-- > 0)
+			write(1, "\b \b", 3);
+		dprintf(1, "\e[1;31mft_cat is invalid with file '%s' : ft_cat = '%s', cat = '%s'\n\e[0m", path, new, original);
+		free(new), free(original);
+		return (0);
+	}
+	free(new), free(original);
+	return (1);
+}
+
+void	ft_test_cat(void)
+{
+	int		c;
+
 	c = dprintf(1, "\e[1;34mTesting ft_cat ...\e[0m");
-	// ft_testfunction(1, 1, 1, ft_cat, "lolilol");
-	// new = ft_getfilecontent();
-// ft_test_cat_tool(0, &new, &original);
-		ft_test_cat_tool(open("LOLILOL", O_RDONLY), &new, &original);
-	// ft_testfunction(1, 1, 1, ft_cat, "lolilol");
-	// original = ft_getfilecontent();
-	dprintf(1, "New = '%s', original = '%s'\n", new, new);
-// if (strcmp(original, new))
-// {
-// 	while (c-- > 0)
-// 		write(1, "\b \b", 3);
-// 	dprintf(1, "\e[1;31mft_cat is invalid with file 'LOLILOL' : ft_cat = '%s', cat = '%s'\n\e[0m", new, original);
-// 	return ;
-// }
+	if (!(ft_test_cat2(c, "LOLILOL")))
+		return ;
 	while (c-- > 0)
 		write(1, "\b \b", 3);
 	dprintf(1, "\e[1;32mft_cat is valid\n\e[0m");
@@ -522,6 +545,7 @@ int		main(void)
 {
 	char	**strings;
 	char	*var;
+	int f;
 
 	strings = ft_randomstrings(RANDOM_STRING_TESTS);
 	dprintf(1, "\e[1;34m  Partie normale : \n\e[0m");
@@ -550,4 +574,5 @@ int		main(void)
 	ft_test_puts(strings, "ft_putchar_fd");
 	ft_test_puts(strings, "ft_putstr");
 	ft_test_puts(strings, "ft_putstr_fd");
+	return (0);
 }
