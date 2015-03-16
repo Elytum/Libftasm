@@ -414,7 +414,7 @@ void	ft_test_puts(char **strings, char *name)
 	// remove("testing_tmp");
 }
 
-char		*ft_getfilecontent(char *path, size_t max)
+char		*ft_getfilecontent(char *path)
 {
 	int		fd;
 	char	*tmp;
@@ -422,7 +422,9 @@ char		*ft_getfilecontent(char *path, size_t max)
 	char	buffer[READ_LEN + 1];
 	size_t	total;
 	size_t	v;
+	size_t	max;
 
+	max = 1000;
 	if ((fd = open (path, O_RDONLY)) == -1 ||
 		!(str = (char *)malloc(sizeof(char) * (max + 1))))
 		return (strdup(""));
@@ -431,16 +433,19 @@ char		*ft_getfilecontent(char *path, size_t max)
 	total = 0;
 	while ((v = read(fd, buffer, READ_LEN)) > 0)
 	{
-		if (v + total < max)
+		if (v + total >= max)
 		{
+			if (!(tmp = (char *)ft_memalloc(sizeof(char) * (max * 2 + 1))))
+				return (str);
+			memcpy(tmp, str, max);
+			free(str);
+			str = tmp;
+			max *= 2;
 			memcpy(str + total, buffer, v);
 			total += v;
 		}
-		else
-		{
-			memcpy(str + total, buffer, max - total - 1);
-			break ;
-		}
+		memcpy(str + total, buffer, v);
+		total += v;
 	}
 	return (str);
 }
@@ -450,7 +455,7 @@ int		main(void)
 	char	**strings;
 	char	*var;
 
-	var = ft_getfilecontent("test/test.c", 15000);
+	var = ft_getfilecontent("/dev/random");
 	write (1, var, ft_strlen(var));
 	return (0);
 	/*strings = ft_randomstrings(RANDOM_STRING_TESTS);
