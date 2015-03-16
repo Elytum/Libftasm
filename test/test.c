@@ -5,7 +5,7 @@
 #define MAX_VALUE 500000
 #define RANDOM_STRING_TESTS 10
 #define ERROR 1
-#define	ERROR_DIF 10
+#define	ERROR_DIF 5
 #define READ_LEN 85
 #include <time.h>
 #include <fcntl.h>
@@ -443,18 +443,12 @@ void	ft_test_puts(char **strings, char *name)
 			ft_testfunction(1, 1, 1, putstr_fd2, *ptr);
 		original = ft_getfilecontent();
 		if (ERROR)
-		{
-			free(new);
-			new = ft_strdup("ERROR1");
-			free(original);
-			original = ft_strdup("ERROR2");
-		}
+			*original = '\0';
 		if (strcmp(original, new))
 		{
 			while (c-- > 0)
 				write(1, "\b \b", 3);
 			dprintf(1, "\e[1;31m%s is invalid with '%s' : %s = '%s', %s = '%s'\n\e[0m", name, *ptr, name, new, name + 3, original);
-			free(new), free(original);
 			return ;
 		}
 		free(new), free(original);
