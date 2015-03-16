@@ -4,9 +4,10 @@
 #define MIN_VALUE -500000
 #define MAX_VALUE 500000
 #define RANDOM_STRING_TESTS 10
-#define ERROR 1
+#define ERROR 0
 #define	ERROR_DIF 5
 #define READ_LEN 85
+#define MAX_FD 100
 #include <time.h>
 #include <fcntl.h>
 #define PATH "/tmp/test"
@@ -390,7 +391,7 @@ void	ft_testfunction(int out, char multichar, int ac, void *function, char *stri
 
 	remove(PATH);
 	fd = open(PATH, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
-	save_fd = dup(1);
+	save_fd = dup(out);
 	dup2(fd, out);
 	if (ac == 1)
 		if (multichar)
@@ -425,22 +426,22 @@ void	ft_test_puts(char **strings, char *name)
 		if (!(strcmp("ft_putchar", name)))
 			ft_testfunction(1, 1, 1, ft_putchar, *ptr);
 		if (!(strcmp("ft_putchar_fd", name)))
-			ft_testfunction(1, 1, 1, ft_putchar_fd, *ptr);
+			ft_testfunction(rand() % MAX_FD, 1, 1, ft_putchar_fd, *ptr);
 		if (!(strcmp("ft_putstr", name)))
 			ft_testfunction(1, 1, 1, ft_putstr, *ptr);
 		if (!(strcmp("ft_putstr_fd", name)))
-			ft_testfunction(1, 1, 1, ft_putstr_fd, *ptr);
+			ft_testfunction(rand() % MAX_FD, 1, 1, ft_putstr_fd, *ptr);
 		new = ft_getfilecontent();
 		if (!(strcmp("ft_puts", name)))
 			ft_testfunction(1, 1, 1, puts2, *ptr);
 		if (!(strcmp("ft_putchar", name)))
 			ft_testfunction(1, 1, 1, putchar2, *ptr);
 		if (!(strcmp("ft_putchar_fd", name)))
-			ft_testfunction(1, 1, 1, putchar_fd2, *ptr);
+			ft_testfunction(rand() % MAX_FD, 1, 1, putchar_fd2, *ptr);
 		if (!(strcmp("ft_putstr", name)))
 			ft_testfunction(1, 1, 1, putstr2, *ptr);
 		if (!(strcmp("ft_putstr_fd", name)))
-			ft_testfunction(1, 1, 1, putstr_fd2, *ptr);
+			ft_testfunction(rand() % MAX_FD, 1, 1, putstr_fd2, *ptr);
 		original = ft_getfilecontent();
 		if (ERROR)
 			*original = '\0';
