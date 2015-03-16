@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #define MIN_VALUE -500000
 #define MAX_VALUE 500000
-#define RANDOM_STRING_TESTS 1000
+#define RANDOM_STRING_TESTS 200
 #define RANDOM_PUT_TESTS 10
 #define ERROR 0
 #define	ERROR_DIF 1

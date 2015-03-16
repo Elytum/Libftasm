@@ -812,15 +812,24 @@ void	ft_test_strclr(char **strings)
 		ft_strclr(s1);
 		strclr2(s2);
 		if (s2 && ERROR && (ptr - strings) > ERROR_DIF)
-			*s2++;
+		{
+			free(s2);
+			s2 = ft_strdup("ERROR");
+		}
 		if (ft_memcmp(s1, s2, ptr - strings))
 		{
 			while (c-- > 0)
 				write(1, "\b \b", 3);
 			dprintf(1, "\e[1;31mft_strclr is invalid with '%s' : ft_strclr = '", *ptr);
-			write(1, s1, ptr - strings);
+			if (s1 && 0)
+				write(1, s1, ft_strlen(s1));
+			else
+				write(1, "(null)", 6);
 			dprintf(1, "', strclr = '");
-			write(1, s2, ptr - strings);
+			if (s2 && 0)
+				write(1, s2, ft_strlen(s2));
+			else
+				write(1, "(null)", 6);
 			dprintf(1, "'\n\e[0m");
 			free(s1), free(s2);
 			return ;
