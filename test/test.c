@@ -38,15 +38,38 @@ void	cat2(int fd)
 	while ((l = read(fd, buffer, READ_LEN)))
 		write (1, buffer, l);
 }
+/*
+	cmp		rdi,	0
+	je		error
+	push	rdi
+	call	_malloc
+	pop		rdi
+	cmp		rax,	0
+	je		error
+	mov		rsi,	rdi
+	mov		rdi,	rax
+	call	_ft_bzero
+	ret
+*/
 
-char	*memalloc2(size_t len)
+void				*memalloc2(size_t size)
 {
-	char *str;
+	void			*memory;
+	unsigned int	counter;
+	char			*explorer;
 
-	if (!(str = (char *)malloc(sizeof(len))))
+	counter = 0;
+	if (!size)
 		return (NULL);
-	bzero(str, len);
-	return (str);
+	if (!(memory = (void *)malloc(size)))
+		return (NULL);
+	explorer = (char *)memory;
+	if (memory != NULL)
+	{
+		while (counter++ < size)
+			*explorer++ = 0;
+	}
+	return (memory);
 }
 
 char		*ft_randomstring(size_t len)
@@ -594,25 +617,24 @@ void	ft_test_memalloc(void)
 	c = dprintf(1, "\e[1;34mTesting ft_memalloc ...\e[0m");
 	while (n <= RANDOM_STRING_TESTS)
 	{
-		// len = rand() % (n + !n);
-		s1 = ft_memalloc(5);
-		s2 = memalloc2(5);
-		// if (ERROR && s1 && n > ERROR_DIF)
-		// 	*s1 = 'l';
-		// if (s1 && s2 && memcmp(s1, s2, len))
-		// {
-		// 	while (c-- > 0)
-		// 		write(1, "\b \b", 3);
-		// 	dprintf(1, "\e[1;31mft_memalloc is invalid with len %i : ft_memalloc = '", len);
-		// 	write(1, s1, len);
-		// 	dprintf(1, "', memalloc = '");
-		// 	write(1, s2, len);
-		// 	dprintf(1, "'\n\e[0m");
-		// 	return ;
-		// }
-		// free(s1);
-		// free(s2);
-
+		len = rand() % (n + !n);
+		s1 = ft_memalloc(len);
+		s2 = memalloc2(len);
+		if (ERROR && s1 && n > ERROR_DIF)
+			*s1 = 'l';
+		if (s1 && s2 && memcmp(s1, s2, len))
+		{
+			while (c-- > 0)
+				write(1, "\b \b", 3);
+			dprintf(1, "\e[1;31mft_memalloc is invalid with len %i : ft_memalloc = '", len);
+			write(1, s1, len);
+			dprintf(1, "', memalloc = '");
+			write(1, s2, len);
+			dprintf(1, "'\n\e[0m");
+			free(s1), free(s2);
+			return ;
+		}
+		free(s1), free(s2);
 		n++;
 	}
 	while (c-- > 0)
