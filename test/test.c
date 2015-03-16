@@ -1,16 +1,20 @@
 #include "test.h"
-#include <stdio.h>
-#include <string.h>
-#define MIN_VALUE -500000
-#define MAX_VALUE 500000
-#define RANDOM_STRING_TESTS 10
-#define ERROR 0
-#define	ERROR_DIF 5
-#define READ_LEN 85
-#define MAX_FD 100
-#include <time.h>
-#include <fcntl.h>
-#define PATH "/tmp/test"
+
+/*
+int		ft_islower(int c);
+int		ft_isupper(int c);
+void	*ft_memalloc(size_t size);
+int		ft_memcmp(const void *s1, const void *s2, size_t n);
+void	ft_putchar(int c);
+void	ft_putchar_fd(int c, int fd);
+void	ft_putstr(char *str);
+void	ft_putstr_fd(char *str, int fd);
+char	*ft_strchr(const char *s, int c);
+void	ft_strclr(char *s);
+int		ft_strcmp(const char *s1, const char *s2);
+char	*ft_strcpy(char *dst, const char *src);
+char	*ft_strnew(size_t size);
+*/
 
 int		putstr2(const char *str)
 {
@@ -430,7 +434,7 @@ void	ft_test_puts(char **strings, char *name)
 
 	c = dprintf(1, "\e[1;34mTesting %s ...\e[0m");
 	ptr = strings;
-	while (*ptr)
+	while (*ptr && ptr - strings < RANDOM_PUT_TESTS)
 	{
 		if (!(strcmp("ft_puts", name)))
 			ft_testfunction(1, 1, 1, ft_puts, *ptr);
@@ -534,7 +538,7 @@ void	ft_test_cat(void)
 	int		c;
 
 	c = dprintf(1, "\e[1;34mTesting ft_cat ...\e[0m");
-	if (!(ft_test_cat2(c, "LOLILOL")))
+	if (!(ft_test_cat2(c, "test/LOLILOL")))
 		return ;
 	while (c-- > 0)
 		write(1, "\b \b", 3);
