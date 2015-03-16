@@ -450,13 +450,49 @@ char		*ft_getfilecontent(char *path)
 	return (str);
 }
 
+void	ft_testfunction(char *path, int out)
+{
+	int		fd;
+	int		save_fd;
+	char	*file;
+	char	*buffer;
+	char	*tmp;
+	size_t	len;
+	size_t	v;
+	size_t	total;
+
+	remove(path);
+	fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+	save_fd = dup(1);
+	dup2(fd, out);
+	write(1, "LOLILOL", 7);
+	close(out);
+	dup2(save_fd, out);
+	close(fd);
+	// fd = open(path, O_RDONLY);
+	// total = 0;
+	// file = (char *)ft_memalloc(sizeof(char) * (l + 1));
+	// buffer = (char *)ft_memalloc(sizeof(char) * (READ_LEN + 1));
+	// while ((v = read(fd, buffer, 1) > 0))
+	// {
+	// 	memcpy(file + total, buffer, v);
+	// 	total += v;	
+	// }
+	// free(buffer);
+	// close(fd);
+	// remove(path);
+	// return (file);
+}
+
 int		main(void)
 {
 	char	**strings;
 	char	*var;
 
-	var = ft_getfilecontent("/dev/random");
+	ft_testfunction("/tmp/test", 1);
+	var = ft_getfilecontent("/tmp/test");
 	write (1, var, ft_strlen(var));
+	free(var);
 	return (0);
 	/*strings = ft_randomstrings(RANDOM_STRING_TESTS);
 	dprintf(1, "\e[1;34m  Partie normale : \n\e[0m");
