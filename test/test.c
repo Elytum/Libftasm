@@ -538,22 +538,6 @@ void	ft_test_cat(void)
 	dprintf(1, "\e[1;32mft_cat is valid\n\e[0m");
 }
 
-/*
-int		ft_islower(int c);
-int		ft_isupper(int c);
-void	*ft_memalloc(size_t size);
-int		ft_memcmp(const void *s1, const void *s2, size_t n);
-void	ft_putchar(int c);
-void	ft_putchar_fd(int c, int fd);
-void	ft_putstr(char *str);
-void	ft_putstr_fd(char *str, int fd);
-char	*ft_strchr(const char *s, int c);
-void	ft_strclr(char *s);
-int		ft_strcmp(const char *s1, const char *s2);
-char	*ft_strcpy(char *dst, const char *src);
-char	*ft_strnew(size_t size);
-*/
-
 void	ft_test_strcpy(char **strings)
 {
 	int		len;
@@ -597,22 +581,22 @@ void	ft_test_strcpy(char **strings)
 	dprintf(1, "\e[1;32mft_strcpy is valid\n\e[0m");
 }
 
-void	ft_test_memalloc(char **strings)
+void	ft_test_memalloc(void)
 {
 	int		len;
 	int		c;
-	char	**ptr;
+	size_t	n;
 	char	*s1;
 	char	*s2;
 
+	n = -5;
 	c = dprintf(1, "\e[1;34mTesting ft_memalloc ...\e[0m");
-	ptr = strings + 1;
-	while (*ptr)
+	while (n <= RANDOM_STRING_TESTS)
 	{
-		len = rand() % (ptr - strings);
+		len = rand() % n;
 		s1 = ft_memalloc(len);
 		s2 = memalloc2(len);
-		if (ERROR && ptr - strings > ERROR_DIF)
+		if (ERROR && n > ERROR_DIF)
 			*(s1 + 1) = 'l';
 		if (memcmp(s1, s2, len))
 		{
@@ -623,15 +607,50 @@ void	ft_test_memalloc(char **strings)
 			dprintf(1, "', memalloc = '");
 			write(1, s2, len);
 			dprintf(1, "'\n\e[0m");
-			free(s1), free(s2);
 			return ;
 		}
-		free(s1), free(s2);
-		ptr++;
+		n++;
 	}
 	while (c-- > 0)
 		write(1, "\b \b", 3);
 	dprintf(1, "\e[1;32mft_memalloc is valid\n\e[0m");
+}
+
+void	ft_test_memcmp(char **strings)
+{
+	char **ptr;
+	char *tmp;
+	int len;
+	int c;
+	int v1;
+	int v2;
+
+	c = dprintf(1, "\e[1;34mTesting ft_memcmp ...\e[0m");
+	ptr = strings + 4;
+	while (*ptr)
+	{
+		tmp = strdup(*ptr);
+		if (ft_strlen(tmp) > 2)
+		{	
+			len = rand() % ft_strlen(tmp);
+			tmp[rand() % ft_strlen(tmp)] = rand();
+			v1 = ft_memcmp(*ptr, tmp, len);
+			v2 = memcmp(*ptr, tmp, len) + (ERROR && ptr - strings > ERROR_DIF);
+			if (v1 != v2)
+			{
+				while (c-- > 0)
+					write(1, "\b \b", 3);
+				dprintf(1, "\e[1;31mft_memcmp is invalid with '%s' and '%s' : ft_memcmp = %i, memcmp = %i\n\e[0m", *ptr, tmp, v1, v2);
+				free(tmp);
+				return ;
+			}
+		}
+		free(tmp);
+		ptr++;
+	}
+	while (c-- > 0)
+		write(1, "\b \b", 3);
+	dprintf(1, "\e[1;32mft_memcmp is valid\n\e[0m");
 }
 
 int		main(void)
@@ -663,8 +682,8 @@ int		main(void)
 	dprintf(1, "\e[1;34m   Partie bonus : \n\e[0m");
 	ft_testis(&ft_isupper, &isupper, "ft_isupper");
 	ft_testis(&ft_islower, &islower, "ft_islower");
-	// ft_test_memalloc(strings);
-	// ft_test_memcmp(strings);
+	ft_test_memalloc();
+	ft_test_memcmp(strings);
 	// ft_test_strchr(strings);
 	// ft_test_strclr(strings);
 	// ft_test_strcmp(strings);
